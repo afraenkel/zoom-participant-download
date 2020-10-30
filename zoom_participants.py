@@ -5,6 +5,7 @@ import io
 import os
 import sys
 import time
+import datetime
 
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
@@ -88,7 +89,21 @@ def start_driver():
         driver = webdriver.Firefox(firefox_profile=profile)
 
     return driver
-        
+
+
+def create_zoom_url():
+    '''
+    creates zoom url to pull participants in all meetings 30 days before present day.
+    '''
+    today = datetime.date.today()
+    minus30 = today - datetime.timedelta(days=30)
+
+    end_date = today.strftime('%m/%d/%Y') # '10/30/2020'
+    start_date = minus30.strftime('%m/%d/%Y')   # '09/30/2020'
+
+    url = "https://ucsd.zoom.us/account/my/report?p=1&from={start}&to={end}".format(start=start_date, end=end_date)
+
+    return url
 
 # ---------------------------------------------------------------------
 # Scraping Logic
@@ -97,10 +112,9 @@ def start_driver():
 
 def main():
         
-    # change it to take in todays date and go 30 days back
-    zoom_url = "https://ucsd.zoom.us/account/my/report?p=1&from=10/01/2020&to=10/29/2020"
-
+    zoom_url = create_zoom_url()
     driver = start_driver()
+    print("Log in to Zoom in the new browser window. Do not touch browser after logging in.")
     driver.get(zoom_url)
 
     xpath = "//table/tbody/tr/td/a[@data-attendees='']"
